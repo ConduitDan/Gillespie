@@ -109,16 +109,26 @@ class Gillespie:
             RxNum+=1
         return RxNum
 
+class ReactionLibrary:
+    def SimpleEquilibrium(N):
+        # A + B -> C
+        rx0 = Reaction([StructuralFormula(0,1),StructuralFormula(1,1)],[StructuralFormula(2,1)],1)
+        # C -> A + B
+        rx1 = Reaction([StructuralFormula(2,1)],[StructuralFormula(0,1),StructuralFormula(1,1)],1)
+        myGillespie = Gillespie([N,N,0],[rx0,rx1])
+        return myGillespie
+
+    def Brusselator(N,b,c):
+        rxList = [Reaction([],[StructuralFormula(0,1)],N)]
+        rxList.append(Reaction([StructuralFormula(0,1)],[],1))
+        rxList.append(Reaction([StructuralFormula(0,1)],[StructuralFormula(1,1)],b))
+        rxList.append(Reaction([StructuralFormula(0,2),StructuralFormula(1,1)],[StructuralFormula(0,3)],c/(N*N)))
+        return  Gillespie([N,N],rxList)
+
 if __name__=="__main__":
-    # A + B -> C
-    rx0 = Reaction([StructuralFormula(0,1),StructuralFormula(1,1)],[StructuralFormula(2,1)],1)
-    # C -> A + B
-    rx1 = Reaction([StructuralFormula(2,1)],[StructuralFormula(0,1),StructuralFormula(1,1)],1)
 
-    myGillespie = Gillespie([50,50,50],[rx0,rx1])
-
-    myObs = GillespieObserver("data.txt")
-
+    myObs = GillespieObserver("brussData")
+    myGillespie = ReactionLibrary.Brusselator(1000,2.2,1)
     myGillespie.setObserver(myObs)
-
-    myGillespie.run(10)
+    myGillespie.run(20)
+    myObs.Plot()
