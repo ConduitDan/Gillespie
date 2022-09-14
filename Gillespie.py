@@ -1,5 +1,6 @@
 import random
 import math
+from matplotlib import pyplot as plt
 
 class StructuralFormula:
     def __init__(self,chemicalNumber,coefficient):
@@ -31,12 +32,28 @@ class Reaction:
 
 class GillespieObserver:
     def __init__(self,fileName):
-        self.file  = open(fileName,'w')
+        self.fileName = fileName
+        self.file  = open(fileName+".txt",'w')
+        self.T = []
+        self.chems = []
     def __del__(self):
         self.file.close()
     def takeMeasurement(self,gillespie):
         self.file.write(str(gillespie.getT())+" ")
+        self.T.append(gillespie.getT())
         self.file.write(str(gillespie.getChemicals())+"\n")
+        self.chems.append(gillespie.getChemicals())
+    def Plot(self):
+        fig,ax = plt.subplots()
+        for i in range(len(self.chems[0])):
+            #plt.plot(self.T,list(frame[i] for frame in self.chems))
+            plt.plot(self.T,self.chems)        
+        plt.savefig(self.fileName+".png")
+        plt.show()
+
+
+
+        
     
 class Gillespie:
     def __init__(self,initialValues,reactions):
@@ -57,7 +74,7 @@ class Gillespie:
         return self.T
     
     def getChemicals(self):
-        return self.chemicalList
+        return tuple(self.chemicalList)
 
     def run(self,maxT):
         while self.T<maxT:
@@ -105,11 +122,3 @@ if __name__=="__main__":
     myGillespie.setObserver(myObs)
 
     myGillespie.run(10)
-
-
-
-
-        
-
-
-
